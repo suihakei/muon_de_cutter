@@ -21,7 +21,23 @@ nimble install nigui
 ```
 
 
-### コードライティング
+### コンパイル
+
+**通常**
+
+```
+nim c -r main.nim
+```
+
+
+**リリースコンパイル**
+
+```
+nim c -d:release --opt:size --app:gui main.nim
+```
+
+
+### コントリビュート
 
 こまめにコメント書いてね。
 
