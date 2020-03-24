@@ -118,6 +118,34 @@ proc writeWave*(filePath: string, wav: WAV) =
     fw.close()
 
 
+proc isWav*(filePath: string): bool =
+    ##
+    ## 与えられたファイルパスのファイルがwavファイル化を確認します
+    ##
+    ## filePath string: wavファイルまでのパス
+
+    var wav: WAV
+
+    # ファイルをReadモードでOpen
+    var fr = newFileStream(filePath, FileMode.fmRead)
+
+    # Waveファイル情報を取得
+    wav.headerId = fr.readStr(4)
+    if wav.headerId != "RIFF":
+        return false
+
+    wav.headerSize = fr.readInt32()
+    wav.headerType = fr.readStr(4)
+    if wav.headerType != "WAVE":
+        return false
+
+    wav.fmtId = fr.readStr(4)
+    if wav.fmtId != "fmt ":
+        return false
+    
+    return true
+
+
 proc divideBySilence*(wav: WAV, threshold: float, silenceTime: int): seq[WAV] =
     ##
     ## 無音部分でデータを分割します
