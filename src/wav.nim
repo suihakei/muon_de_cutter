@@ -7,13 +7,6 @@ import math
 
 proc getDecibel(volume: float, fmtBitsPerSample: int = 16): float
 
-# ====================================================================
-# ■ PRM情報
-# ====================================================================
-type WAV_PRM = object
-    fs: int32               # サンプリング周波数
-    bits: int               # 量子化bit数
-    L: int32                # データ長
 
 # ====================================================================
 # ■ waveの構造情報
@@ -48,7 +41,6 @@ proc readWave*(filePath: string): WAV =
     ## filePath string: wavファイルのパスを指定
 
     var wav: WAV
-    var prm: WAV_PRM
     var data: int16
 
     # ファイルをReadモードでOpen
@@ -69,13 +61,9 @@ proc readWave*(filePath: string): WAV =
     wav.dataId = fr.readStr(4)
     wav.dataSize = fr.readInt32()
 
-    # PRM情報を作成
-    prm.fs = wav.fmtSamplesPerSec
-    prm.bits = wav.fmtBitsPerSample
-    prm.L = int32(int(wav.dataSize) / 2)
-
     # 音情報を取得する
-    for i in 0..prm.L - 1:
+    let dataLength = int32(int(wav.dataSize) / wav.fmtBlockSize)
+    for i in 0..dataLength - 1:
         data = fr.readInt16()
         wav.data.add(data / 32767)
     
@@ -92,7 +80,7 @@ proc writeWave*(filePath: string, wav: WAV) =
     ## wav WAV: 書き出しWAV構造体を指定
 
     var data: int16
-    let dataLength = int32(int(wav.dataSize) / 2)
+    let dataLength = int32(int(wav.dataSize) / wav.fmtBlockSize)
 
     # ファイルをWriteモードでOpen
     var fw = newFileStream(filePath, FileMode.fmWrite)
@@ -145,14 +133,14 @@ proc divideBySilence*(wav: WAV, threshold: float, silenceTime: int): seq[WAV] =
     for i in wav.data:
         sequence.add(i)
         
-        # 無音だと判断するしきい値（音量は-1～1で正規化されている）
-        if -threshold <= i and i <= threshold:
+        # デシベルに変換し、0を最大値とする
+        if getDecibel(i) <= getDecibel(threshold):
             silenceCount += 1
         else:
             silenceCount = 0
         
         # 無音がN秒以上続いたらそこでカットする
-        if silenceCount >= wav.fmtBytesPerSec * silenceTime:
+        if silenceCount >= int(wav.fmtBytesPerSec / wav.fmtBlockSize) * silenceTime:
             devidedData.add(sequence)
 
             sequence = @[]
@@ -177,7 +165,7 @@ proc divideBySilence*(wav: WAV, threshold: float, silenceTime: int): seq[WAV] =
         wavTmp.fmtBlockSize = wav.fmtBlockSize
         wavTmp.fmtBitsPerSample = wav.fmtBitsPerSample
         wavTmp.dataId = wav.dataId
-        wavTmp.dataSize = int32(i.len * 2)
+        wavTmp.dataSize = int32(i.len * wav.fmtBlockSize)
         wavTmp.data.add(i)
 
         result.add(wavTmp)
@@ -199,9 +187,7 @@ proc getDecibel(volume: float, fmtBitsPerSample: int = 16): float =
     ## fmtBitsPerSample int: サンプリングビット数
 
     if volume == 0:
-        return 0.0
+        return -99999999999999.0
 
-    let e0 = 2^(fmtBitsPerSample - 1)       # 通常サンプリングビットは16として、32767.0が返るはず
+    let e0 = 2^(fmtBitsPerSample - 1) - 1       # 通常サンプリングビットは16として、32767.0が返るはず
     result = 20 * log10(abs(volume)) - log10(float(e0))
-
-    echo(volume, " > ", result)

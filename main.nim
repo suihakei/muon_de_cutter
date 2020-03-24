@@ -3,7 +3,7 @@ import src/wav
 
 let wave = wav.readWave("test.wav")
 
-let slices = wav.divideBySilence(wave, 0.078, 2)
+let slices = wav.divideBySilence(wave, 0.05, 2)
 
 var cnt = 0
 for i in slices:
