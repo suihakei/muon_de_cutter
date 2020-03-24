@@ -1,4 +1,11 @@
 import streams
+import math
+
+# ====================================================================
+# 前方宣言（Cで言うプロトタイプ宣言）
+# ====================================================================
+
+proc getDecibel(volume: float, fmtBitsPerSample: int = 16): float
 
 # ====================================================================
 # ■ PRM情報
@@ -176,4 +183,25 @@ proc divideBySilence*(wav: WAV, threshold: float, silenceTime: int): seq[WAV] =
         result.add(wavTmp)
 
         
+# ====================================================================
+# 以下 private method
+# ====================================================================
 
+proc getDecibel(volume: float, fmtBitsPerSample: int = 16): float =
+    ## 
+    ## 与えられたボリューム値から、dB（デシベル）を計算し返します
+    ## 
+    ## dB = 20*log(|E|/E0)
+    ## E0 = 2^(b-1)
+    ## 参考： https://oshiete.goo.ne.jp/qa/1030807.html
+    ##
+    ## volume float: 音量
+    ## fmtBitsPerSample int: サンプリングビット数
+
+    if volume == 0:
+        return 0.0
+
+    let e0 = 2^(fmtBitsPerSample - 1)       # 通常サンプリングビットは16として、32767.0が返るはず
+    result = 20 * log10(abs(volume)) - log10(float(e0))
+
+    echo(volume, " > ", result)
