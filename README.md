@@ -12,6 +12,13 @@ ADVとか作るときに、声優さんのボイスを無音で自動カット�
 将来的には色々機能乗せていきたい。
 
 
+### どこからダウンロードできるの？
+
+[releases](https://github.com/suihakei/muon_de_cutter/releases)ページからできますわ。
+
+only windowsだけどね。ごめんね。
+
+
 ## 開発
 
 ### 依存性
