@@ -146,6 +146,33 @@ proc isWav*(filePath: string): bool =
     return true
 
 
+proc getChannel*(wav: WAV): int16 =
+    ##
+    ## チャンネル数を取得
+    ##
+    ## wav WAV: wavオブジェクトを指定
+
+    return wav.fmtChannel
+
+
+proc getSamplingFrequency*(wav: WAV): int32 =
+    ##
+    ## サンプリング周波数を取得
+    ##
+    ## wav WAV: wavオブジェクトを指定
+
+    return wav.fmtBytesPerSec
+
+
+proc getQuantizationBits*(wav: WAV): int16 =
+    ##
+    ## 量子化ビット数を取得
+    ##
+    ## wav WAV: wavオブジェクトを指定
+
+    return wav.fmtBitsPerSample
+
+
 proc divideBySilence*(wav: WAV, threshold: float, silenceTime: int): seq[WAV] =
     ##
     ## 無音部分でデータを分割します
