@@ -121,6 +121,14 @@ silenceTimeValueTextBox.y = 155
 silenceTimeValueTextBox.width = 160
 silenceTimeValueTextBox.height = 23
 
+# 切り出したファイルが全て無音だった場合は出力しない
+var noOutputAllSilenceCheckBox = newCheckbox("ファイルがすべて無音の場合はそのファイル出力しない")
+mainContainer.add(noOutputAllSilenceCheckBox)
+noOutputAllSilenceCheckBox.x = 5
+noOutputAllSilenceCheckBox.y = 180
+noOutputAllSilenceCheckBox.width = 265
+noOutputAllSilenceCheckBox.height = 21
+
 # 出力先フォルダーパス
 var outputFolderPathTextBox = newTextBox("")
 mainContainer.add(outputFolderPathTextBox)
@@ -223,6 +231,9 @@ cuttingStartButton.onClick = proc(event: ClickEvent) =
     if silenceTime < 0:
         window.alert("カットするタイミングは1秒以上で指定してくださいな")
         return
+
+    # 無音で切り出したファイルがすべて無音の場合は、そのファイルを出力しない
+    let isIgnoreAllSilence = noOutputAllSilenceCheckBox.checked
     
     # wavの取得
     let wave = wav.readWave(wavFilePathTextBox.text)
@@ -233,6 +244,9 @@ cuttingStartButton.onClick = proc(event: ClickEvent) =
     # 書き出し
     var cnt = 0
     for i in slices:
+        if isIgnoreAllSilence == true and wav.isAllSilence(i, threshold) == true:
+            continue
+
         wav.writeWave(fmt"{outputFolderPathTextBox.text}\out{cnt}.wav", i)
 
         cnt += 1
