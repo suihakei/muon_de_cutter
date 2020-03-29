@@ -225,6 +225,20 @@ proc divideBySilence*(wav: WAV, threshold: float, silenceTime: int): seq[WAV] =
 
         result.add(wavTmp)
 
+
+proc isAllSilence*(wav: WAV, threshold: float): bool =
+    ##
+    ## WAVデータがすべて無音の場合はtrueを返し、有音が1箇所でもあればfalseを返します
+    ##
+    ## wav WAV: WAV構造体を指定します
+    ## threshold float: 無音と識別するためのしきい値（0.0～1.0）
+
+    for data in wav.data:
+        if getDecibel(data) >= getDecibel(threshold):
+            return false
+    
+    return true
+
         
 # ====================================================================
 # 以下 private method
