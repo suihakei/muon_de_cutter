@@ -95,14 +95,14 @@ quantizationBitsValueTextBox.editable = false
 var thresholdVolumeDescriptionLabel = newLabel("無音と判別するしきい値（0～1）")
 mainContainer.add(thresholdVolumeDescriptionLabel)
 thresholdVolumeDescriptionLabel.x = 5
-thresholdVolumeDescriptionLabel.y = 130
+thresholdVolumeDescriptionLabel.y = 100
 thresholdVolumeDescriptionLabel.width = 160
 thresholdVolumeDescriptionLabel.height = 21
 
 var thresholdVolumeValueTextBox = newTextBox("0.05")
 mainContainer.add(thresholdVolumeValueTextBox)
 thresholdVolumeValueTextBox.x = 170
-thresholdVolumeValueTextBox.y = 125
+thresholdVolumeValueTextBox.y = 95
 thresholdVolumeValueTextBox.width = 120
 thresholdVolumeValueTextBox.height = 23
 
@@ -110,14 +110,14 @@ thresholdVolumeValueTextBox.height = 23
 var silenceTimeDescriptionLabel = newLabel("無音がこの秒数続くとカットポジションと判別")
 mainContainer.add(silenceTimeDescriptionLabel)
 silenceTimeDescriptionLabel.x = 5
-silenceTimeDescriptionLabel.y = 160
+silenceTimeDescriptionLabel.y = 130
 silenceTimeDescriptionLabel.width = 210
 silenceTimeDescriptionLabel.height = 21
 
 var silenceTimeValueTextBox = newTextBox("2")
 mainContainer.add(silenceTimeValueTextBox)
 silenceTimeValueTextBox.x = 220
-silenceTimeValueTextBox.y = 155
+silenceTimeValueTextBox.y = 125
 silenceTimeValueTextBox.width = 160
 silenceTimeValueTextBox.height = 23
 
@@ -125,9 +125,17 @@ silenceTimeValueTextBox.height = 23
 var noOutputAllSilenceCheckBox = newCheckbox("ファイルがすべて無音の場合はそのファイル出力しない")
 mainContainer.add(noOutputAllSilenceCheckBox)
 noOutputAllSilenceCheckBox.x = 5
-noOutputAllSilenceCheckBox.y = 180
+noOutputAllSilenceCheckBox.y = 160
 noOutputAllSilenceCheckBox.width = 265
 noOutputAllSilenceCheckBox.height = 21
+
+# 前後の無音を削除
+var trimSilenceCheckBox = newCheckbox("切り出したファイルの前後の無音をカットする")
+mainContainer.add(trimSilenceCheckBox)
+trimSilenceCheckBox.x = 5
+trimSilenceCheckBox.y = 180
+trimSilenceCheckBox.width = 265
+trimSilenceCheckBox.height = 21
 
 # 出力先フォルダーパス
 var outputFolderPathTextBox = newTextBox("")
