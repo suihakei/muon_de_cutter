@@ -21,6 +21,15 @@ only windowsだけどね。ごめんね。
 
 ## 開発
 
+## Nim version
+
+- ver 1.0.6利用中
+- choosenim のダウンロードは[ここ](https://github.com/dom96/choosenim)の[releases](https://github.com/dom96/choosenim/releases)から
+
+```
+choosenim 1.0.6
+```
+
 ### 依存性
 
 ```
