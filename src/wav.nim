@@ -1,5 +1,6 @@
 import streams
 import math
+import algorithm
 
 # ====================================================================
 # 前方宣言（Cで言うプロトタイプ宣言）
@@ -238,6 +239,74 @@ proc isAllSilence*(wav: WAV, threshold: float): bool =
             return false
     
     return true
+
+
+proc trimSilence*(wav: WAV, threshold: float, leaveTopTime: float, leaveLastTime: float): WAV =
+    ##
+    ## wavデータの前後の無音をカットします
+    ##
+    ## wav WAV: WAV構造体を指定します
+    ## threshold float: 無音と識別するためのしきい値（0.0～1.0）
+    ## leaveTopTime float: 先頭に残す無音秒
+    ## leaveLastTime float: 末尾に残す無音秒
+
+    var confirmedData: seq[float]
+    var tmp: seq[float]
+    var startFlg = false
+
+    # 先頭に残す無音のブロック数を計算 = 1秒のブロックサイズ（Byte） * 残す時間（秒）
+    let leaveBlockNum = float(wav.fmtBytesPerSec) * leaveTopTime
+
+    for data in wav.data:
+        if startFlg == false and getDecibel(data) >= getDecibel(threshold):
+            # 有音になったらフラグを立てる
+            startFlg = true
+        
+        # 有音箇所は取得し続ける
+        if startFlg == true:
+            tmp.add(data)
+
+            # 途中、無音が挟まったらその後最後まで無音の可能性もあるので、有音になってから最終確定用変数にデータを入れる
+            if getDecibel(data) >= getDecibel(threshold):
+                for t in tmp:
+                    confirmedData.add(t)
+                
+                tmp = @[]
+
+    # 最後の断片データ
+    confirmedData.add(tmp)
+
+    # データ完成後、前後に必要分の無音を入れる
+    var silentData: seq[float]
+    for i in 0..int(leaveBlockNum):
+        # 無音をひたすら作る
+        silentData.add(0.0)
+    # 無音データを先頭に追加（insertが公式の書き方でエラるので愚直に書く）
+    var tmpConfirmedData: seq[float]
+    for i in silentData:
+        tmpConfirmedData.add(i)
+    for i in confirmedData:
+        tmpConfirmedData.add(i)
+    confirmedData = tmpConfirmedData
+
+    
+    # 返却用データ作成
+    result.headerId = wav.headerId
+    result.headerSize = wav.headerSize
+    result.headerType = wav.headerType
+    result.fmtId = wav.fmtId
+    result.fmtSize = wav.fmtSize
+    result.fmtFormat = wav.fmtFormat
+    result.fmtChannel = wav.fmtChannel
+    result.fmtSamplesPerSec = wav.fmtSamplesPerSec
+    result.fmtBytesPerSec = wav.fmtBytesPerSec
+    result.fmtBlockSize = wav.fmtBlockSize
+    result.fmtBitsPerSample = wav.fmtBitsPerSample
+    result.dataId = wav.dataId
+    result.dataSize = int32(confirmedData.len * wav.fmtBlockSize)
+    result.data = confirmedData
+    
+
 
         
 # ====================================================================

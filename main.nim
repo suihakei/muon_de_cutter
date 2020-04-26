@@ -242,6 +242,9 @@ cuttingStartButton.onClick = proc(event: ClickEvent) =
 
     # 無音で切り出したファイルがすべて無音の場合は、そのファイルを出力しない
     let isIgnoreAllSilence = noOutputAllSilenceCheckBox.checked
+
+    # 前後の無音をカットする
+    let isTrimSilence = trimSilenceCheckBox.checked
     
     # wavの取得
     let wave = wav.readWave(wavFilePathTextBox.text)
@@ -252,10 +255,17 @@ cuttingStartButton.onClick = proc(event: ClickEvent) =
     # 書き出し
     var cnt = 0
     for i in slices:
-        if isIgnoreAllSilence == true and wav.isAllSilence(i, threshold) == true:
+        var writeData = i
+
+        # すべて無音の場合は書き出さない
+        if isIgnoreAllSilence == true and wav.isAllSilence(writeData, threshold) == true:
             continue
 
-        wav.writeWave(fmt"{outputFolderPathTextBox.text}\out{cnt}.wav", i)
+        # 必要なら前後の無音をカットする
+        if isTrimSilence == true:
+            writeData = wav.trimSilence(writeData, threshold, 0.3, 0.3)
+
+        wav.writeWave(fmt"{outputFolderPathTextBox.text}\out{cnt}.wav", writeData)
 
         cnt += 1
     
