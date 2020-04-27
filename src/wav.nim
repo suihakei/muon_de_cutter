@@ -1,6 +1,8 @@
 import streams
 import math
 import algorithm
+import sequtils
+import extension
 
 # ====================================================================
 # 前方宣言（Cで言うプロトタイプ宣言）
@@ -241,12 +243,13 @@ proc isAllSilence*(wav: WAV, threshold: float): bool =
     return true
 
 
-proc trimSilence*(wav: WAV, threshold: float, leaveTopTime: float, leaveLastTime: float): WAV =
+proc trimSilence*(wav: WAV, threshold: float, silenceTime: int, leaveTopTime: float, leaveLastTime: float): WAV =
     ##
     ## wavデータの前後の無音をカットします
     ##
     ## wav WAV: WAV構造体を指定します
     ## threshold float: 無音と識別するためのしきい値（0.0～1.0）
+    ## silenceTime int: 無音ごこの秒数続くとカットするというしきいの時間
     ## leaveTopTime float: 先頭に残す無音秒
     ## leaveLastTime float: 末尾に残す無音秒
 
@@ -272,23 +275,28 @@ proc trimSilence*(wav: WAV, threshold: float, leaveTopTime: float, leaveLastTime
                     confirmedData.add(t)
                 
                 tmp = @[]
+    
+    # 最後の断片データが敷居時間を超えていなければ、データとして結合する
+    if tmp.len < silenceTime * wav.fmtBytesPerSec:
+        confirmedData.add(tmp)
 
-    # 最後の断片データ
-    confirmedData.add(tmp)
-
-    # データ完成後、前後に必要分の無音を入れる
+    # データ完成後、先頭に必要分の無音を入れる
     var silentData: seq[float]
-    for i in 0..int(leaveBlockNum):
+    for i in countUp(0.0, leaveTopTime, 0.1):
         # 無音をひたすら作る
         silentData.add(0.0)
-    # 無音データを先頭に追加（insertが公式の書き方でエラるので愚直に書く）
-    var tmpConfirmedData: seq[float]
-    for i in silentData:
-        tmpConfirmedData.add(i)
-    for i in confirmedData:
-        tmpConfirmedData.add(i)
-    confirmedData = tmpConfirmedData
 
+    # 無音データを先頭に追加
+    confirmedData.insert(silentData, 0)
+    
+    # データ完成後、末尾に必要分の無音を入れる
+    silentData = @[]
+    for i in countUp(0.0, leaveBlockNum, 0.1):
+        # 無音をひたすら作る
+        silentData.add(0.0)
+
+    # 無音データを末尾に追加
+    confirmedData.add(silentData)
     
     # 返却用データ作成
     result.headerId = wav.headerId

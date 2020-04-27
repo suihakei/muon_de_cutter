@@ -263,7 +263,7 @@ cuttingStartButton.onClick = proc(event: ClickEvent) =
 
         # 必要なら前後の無音をカットする
         if isTrimSilence == true:
-            writeData = wav.trimSilence(writeData, threshold, 0.3, 0.3)
+            writeData = wav.trimSilence(writeData, threshold, silenceTime, 0.1, 0.0)
 
         wav.writeWave(fmt"{outputFolderPathTextBox.text}\out{cnt}.wav", writeData)
 
