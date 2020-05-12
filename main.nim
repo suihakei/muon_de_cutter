@@ -130,7 +130,7 @@ noOutputAllSilenceCheckBox.width = 265
 noOutputAllSilenceCheckBox.height = 21
 
 # 前後の無音を削除
-var trimSilenceCheckBox = newCheckbox("切り出したファイルの前後の無音をカットする")
+var trimSilenceCheckBox = newCheckbox("切り出したファイルの先頭の無音をカットする")
 mainContainer.add(trimSilenceCheckBox)
 trimSilenceCheckBox.x = 5
 trimSilenceCheckBox.y = 180
@@ -263,7 +263,7 @@ cuttingStartButton.onClick = proc(event: ClickEvent) =
 
         # 必要なら前後の無音をカットする
         if isTrimSilence == true:
-            writeData = wav.trimSilence(writeData, threshold, silenceTime, 0.1, 0.0)
+            writeData = wav.trimSilence(writeData, threshold, silenceTime, 0.2)
 
         wav.writeWave(fmt"{outputFolderPathTextBox.text}\out{cnt}.wav", writeData)
 

@@ -243,22 +243,18 @@ proc isAllSilence*(wav: WAV, threshold: float): bool =
     return true
 
 
-proc trimSilence*(wav: WAV, threshold: float, silenceTime: int, leaveTopTime: float, leaveLastTime: float): WAV =
+proc trimSilence*(wav: WAV, threshold: float, silenceTime: int, leaveTopTime: float): WAV =
     ##
-    ## wavデータの前後の無音をカットします
+    ## wavデータの先頭の無音をカットします
     ##
     ## wav WAV: WAV構造体を指定します
     ## threshold float: 無音と識別するためのしきい値（0.0～1.0）
     ## silenceTime int: 無音ごこの秒数続くとカットするというしきいの時間
     ## leaveTopTime float: 先頭に残す無音秒
-    ## leaveLastTime float: 末尾に残す無音秒
 
     var confirmedData: seq[float]
     var tmp: seq[float]
     var startFlg = false
-
-    # 先頭に残す無音のブロック数を計算 = 1秒のブロックサイズ（Byte） * 残す時間（秒）
-    let leaveBlockNum = float(wav.fmtBytesPerSec) * leaveTopTime
 
     for data in wav.data:
         if startFlg == false and getDecibel(data) >= getDecibel(threshold):
@@ -288,15 +284,6 @@ proc trimSilence*(wav: WAV, threshold: float, silenceTime: int, leaveTopTime: fl
 
     # 無音データを先頭に追加
     confirmedData.insert(silentData, 0)
-    
-    # データ完成後、末尾に必要分の無音を入れる
-    silentData = @[]
-    for i in countUp(0.0, leaveBlockNum, 0.1):
-        # 無音をひたすら作る
-        silentData.add(0.0)
-
-    # 無音データを末尾に追加
-    confirmedData.add(silentData)
     
     # 返却用データ作成
     result.headerId = wav.headerId
