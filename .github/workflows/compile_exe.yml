@@ -1,0 +1,40 @@
+# このCIの名前
+name: adding new release
+
+# CI実行を行う条件
+on:
+  # push時
+  push:
+    branches: [ master ]
+  # プルリクのマージ時に実行
+  pull_request:
+    branches: [ master ]
+
+# 実際のJob
+jobs:
+  # 環境構築
+  build:
+    # 指定のOS環境をBuildさせる（「strategy」に定義）
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        # buildする環境名。windows-latestとかmacos-latestとかも指定できるらしい
+        os: [ubuntu-latest]
+        
+  # 環境に対して、処理を実行していく
+  steps:
+    # リポジトリの内容をGIthub actionsが参照できるようにするコマンド（外部定義を読み込んでいる）
+    - uses: actions/checkout@v2
+    
+    - name: nim環境の準備(本当はchoosenimを使いたいけど、まあ、とりあえず)
+      run: apt install nim
+    
+    - name: Windowsへのクロスコンパイル環境
+      run: apt install mingw-w64
+      
+    - name: コンパイル位実行（そのうちnimbleに対応させる）
+      run: nim c -d:mingw main.nim
+    
+    - name: Linuxでコンパイルテスト
+      run: nim c main.nim
+    
