@@ -22,7 +22,7 @@ type WAV = object
     headerType: string                  # そのファイルの識別子
 
     # フォーマットチャンク
-    fmtId: string                       # フォーマットチャンクを表す文字列
+    fmtId: string                       # フォーマットチャンクを表す文字列（基本「fmt 」←半角スペースも必要）
     fmtSize: int32                      # フォーマットチャンクのサイズ（基本16）
     fmtFormat: int16                    # ファイルの形式。通常のWaveなら1
     fmtChannel: int16                   # 音声データのチャンネル数（1 or 2）
