@@ -1,3 +1,6 @@
+## 後継ソフト
+https://github.com/suihakei/voice_divider
+
 ## ソフト説明
 
 ### ソフト名
